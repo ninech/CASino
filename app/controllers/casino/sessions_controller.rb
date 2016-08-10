@@ -23,7 +23,7 @@ class CASino::SessionsController < CASino::ApplicationController
   def create
     validation_result = validate_login_credentials(params[:username], params[:password])
     if !validation_result
-      log_failed_login params[:username]
+      handle_failed_login params[:username]
       show_login_error I18n.t('login_credential_acceptor.invalid_login_credentials')
     else
       sign_in(validation_result, long_term: params[:rememberMe], credentials_supplied: true)

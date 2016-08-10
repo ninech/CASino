@@ -208,6 +208,24 @@ describe CASino::SessionsController do
           expect(CASino::LoginAttempt.last.user).to eq user
           expect(CASino::LoginAttempt.last.successful).to eq false
         end
+
+        it 'does not lock the user' do
+          expect do
+            post :create, params
+          end.to_not change { user.reload.locked? }
+        end
+
+        context 'when the maximum of failed login attempts is reached' do
+          before do
+            allow(CASino.config).to receive(:max_failed_login_attempts).and_return(1)
+          end
+
+          it 'deactivates the user' do
+            expect do
+              post :create, params
+            end.to change { user.reload.locked? }.from(false).to(true)
+          end
+        end
       end
 
       context 'with valid credentials' do

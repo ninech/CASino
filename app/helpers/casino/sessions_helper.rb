@@ -4,6 +4,8 @@ module CASino::SessionsHelper
   include CASino::TicketGrantingTicketProcessor
   include CASino::ServiceTicketProcessor
 
+  LOCK_TIMEOUT = 5.minutes
+
   def current_ticket_granting_ticket?(ticket_granting_ticket)
     ticket_granting_ticket.ticket == cookies[:tgt]
   end
@@ -51,9 +53,10 @@ module CASino::SessionsHelper
     cookies.delete :tgt
   end
 
-  def log_failed_login(username)
+  def handle_failed_login(username)
     CASino::User.where(username: username).each do |user|
       create_login_attempt(user, false)
+      lock_user(user) if user.max_failed_logins_reached?(CASino.config.max_failed_login_attempts)
     end
   end
 
@@ -90,5 +93,9 @@ module CASino::SessionsHelper
       url = acquire_service_ticket(tgt, params[:service], options).service_with_ticket_url
       redirect_to url, status: :see_other
     end
+  end
+
+  def lock_user(user)
+    user.update locked_until: LOCK_TIMEOUT.from_now
   end
 end

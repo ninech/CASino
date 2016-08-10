@@ -9,4 +9,14 @@ class CASino::User < ActiveRecord::Base
   def active_two_factor_authenticator
     self.two_factor_authenticators.where(active: true).first
   end
+
+  def locked?
+    return false unless locked_until
+    locked_until.future?
+  end
+
+  def max_failed_logins_reached?(max)
+    max ||= 5
+    login_attempts.last(max).count(&:failed?) == max
+  end
 end
