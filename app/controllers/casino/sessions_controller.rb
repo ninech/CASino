@@ -25,6 +25,8 @@ class CASino::SessionsController < CASino::ApplicationController
     if !validation_result
       handle_failed_login params[:username]
       show_login_error I18n.t('login_credential_acceptor.invalid_login_credentials')
+    elsif user_from_validation_result(validation_result).locked?
+      show_login_error I18n.t('login_credential_acceptor.user_is_locked')
     else
       sign_in(validation_result, long_term: params[:rememberMe], credentials_supplied: true)
     end
@@ -82,5 +84,12 @@ class CASino::SessionsController < CASino::ApplicationController
   def load_ticket_granting_ticket_from_parameter
     @ticket_granting_ticket = find_valid_ticket_granting_ticket(params[:tgt], request.user_agent, ignore_two_factor: true)
     redirect_to login_path if @ticket_granting_ticket.nil?
+  end
+
+  def user_from_validation_result(validation_result)
+      user_data = validation_result[:user_data]
+      load_or_initialize_user(validation_result[:authenticator],
+                              user_data[:username],
+                              user_data[:extra_attributes])
   end
 end
