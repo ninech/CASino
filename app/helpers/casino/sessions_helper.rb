@@ -97,6 +97,7 @@ module CASino::SessionsHelper
 
   def prevent_brute_force(user)
     return unless user.max_failed_logins_reached?(CASino.config.max_failed_login_attempts)
-    user.update locked_until: LOCK_TIMEOUT.from_now
+    lock_timeout_minutes = CASino.config.failed_login_lock_timeout.to_i.minutes
+    user.update locked_until: lock_timeout_minutes.from_now
   end
 end
