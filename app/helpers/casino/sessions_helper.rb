@@ -56,7 +56,7 @@ module CASino::SessionsHelper
   def handle_failed_login(username)
     CASino::User.where(username: username).each do |user|
       create_login_attempt(user, false)
-      lock_user(user) if user.max_failed_logins_reached?(CASino.config.max_failed_login_attempts)
+      prevent_brute_force(user)
     end
   end
 
@@ -95,7 +95,8 @@ module CASino::SessionsHelper
     end
   end
 
-  def lock_user(user)
+  def prevent_brute_force(user)
+    return unless user.max_failed_logins_reached?(CASino.config.max_failed_login_attempts)
     user.update locked_until: LOCK_TIMEOUT.from_now
   end
 end

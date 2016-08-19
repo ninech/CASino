@@ -16,7 +16,7 @@ class CASino::User < ActiveRecord::Base
   end
 
   def max_failed_logins_reached?(max)
-    max ||= 5
+    return false if max.to_i <= 0
     login_attempts.last(max).count(&:failed?) == max
   end
 end

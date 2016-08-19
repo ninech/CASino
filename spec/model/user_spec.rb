@@ -33,6 +33,16 @@ RSpec.describe CASino::User do
       it { is_expected.to eq false }
     end
 
+    context 'when the feature is disabled' do
+      let(:max_failed_attempts) { -1 }
+      it { is_expected.to eq false }
+    end
+
+    context 'when the maxium value is invalid' do
+      let(:max_failed_attempts) { nil }
+      it { is_expected.to eq false }
+    end
+
     context 'when the maximum of attempts is reached' do
       before { FactoryGirl.create_list :login_attempt, 2, successful: false, user: user }
 

@@ -1,4 +1,5 @@
 defaults: &defaults
+  max_failed_login_attempts: -1 # disabled
   service_ticket:
     lifetime_unconsumed: 299
   authenticators:
