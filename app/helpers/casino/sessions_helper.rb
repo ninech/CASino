@@ -51,6 +51,12 @@ module CASino::SessionsHelper
     cookies.delete :tgt
   end
 
+  def user_locked?(username)
+    CASino::User.where(username: username).to_a.any? do |user|
+      user.locked?
+    end
+  end
+
   def handle_failed_login(username)
     CASino::User.where(username: username).each do |user|
       create_login_attempt(user, false)
