@@ -4,8 +4,6 @@ module CASino::SessionsHelper
   include CASino::TicketGrantingTicketProcessor
   include CASino::ServiceTicketProcessor
 
-  LOCK_TIMEOUT = 5.minutes
-
   def current_ticket_granting_ticket?(ticket_granting_ticket)
     ticket_granting_ticket.ticket == cookies[:tgt]
   end
