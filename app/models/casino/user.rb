@@ -6,6 +6,8 @@ class CASino::User < ActiveRecord::Base
   has_many :two_factor_authenticators
   has_many :login_attempts
 
+  scope :locked, -> { where('locked_until > ?', Time.now) }
+
   def active_two_factor_authenticator
     self.two_factor_authenticators.where(active: true).first
   end

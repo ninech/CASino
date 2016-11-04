@@ -52,9 +52,7 @@ module CASino::SessionsHelper
   end
 
   def user_locked?(username)
-    CASino::User.where(username: username).to_a.any? do |user|
-      user.locked?
-    end
+    CASino::User.locked.where(username: username).any?
   end
 
   def handle_failed_login(username)
