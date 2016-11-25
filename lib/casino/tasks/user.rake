@@ -17,12 +17,17 @@ namespace :casino do
         table = Terminal::Table.new(headings: headers) do |t|
           users.each do |user|
             two_factor_enabled = user.active_two_factor_authenticator ? 'yes' : 'no'
+            user_locked = if user.locked_until.nil?
+                            'no'
+                          else
+                            user.locked_until.future? ? 'yes' : 'no'
+                          end
             t.add_row [
               user.id,
               user.username,
               user.authenticator,
               two_factor_enabled,
-              user.locked_until.future?,
+              user_locked,
               user.locked_until,
             ]
           end
