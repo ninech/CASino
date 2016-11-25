@@ -52,7 +52,16 @@ module CASino::SessionsHelper
   end
 
   def user_locked?(username)
-    CASino::User.locked.where(username: username).any?
+    result = CASino::User.where(username: username)
+
+
+    # If we've never seen this user before, it can't be locked already.
+    return false if result.empty?
+
+    # A user is only locked, if all its CASino::Users, from all providers, are locked.
+    # Because it might be, that it is locked for one (e.g. legacy) provider, but not for another.
+    # So it should still have the chance to login to said other provider.
+    return result.where('locked_until IS NULL or locked_until <= :now', username: username, now: Time.now).empty?
   end
 
   def handle_failed_login(username)
