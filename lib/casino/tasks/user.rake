@@ -6,11 +6,11 @@ namespace :casino do
     task :search, [:query] => :environment do |task, args|
       users = CASino::User.where('username LIKE ?', "%#{args[:query]}%")
       if users.any?
-        headers = ['User ID', 'Username', 'Authenticator', 'Two-factor authentication enabled?']
+        headers = ['User ID', 'Username', 'Authenticator', 'Two-factor authentication enabled?', 'Locked?']
         table = Terminal::Table.new :headings => headers do |t|
           users.each do |user|
             two_factor_enabled = user.active_two_factor_authenticator ? 'yes' : 'no'
-            t.add_row [user.id, user.username, user.authenticator, two_factor_enabled]
+            t.add_row [user.id, user.username, user.authenticator, two_factor_enabled, user.locked_until.future?]
           end
         end
         puts table
